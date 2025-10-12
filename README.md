@@ -22,6 +22,9 @@ This project is a Python-based application designed to solve multiple-choice que
 > [!IMPORTANT]
 > The GUI will look great only on linux machine (tested on Debian). There may be problems with the appearance of the application when using Windows.
 
+> [!WARNING]
+> **Required**: You must set up an OpenRouter API key before running the application. The program will not work without it.
+
 To run the application locally:
 
 1. **Clone the Repository**:
@@ -48,7 +51,29 @@ uv sync
 source .venv/bin/activate  # On Windows use `.venv\Scripts\activate`
 ```
 
-3. **Run the Application**:
+3. **Set up OpenRouter API Key**:
+
+   Create a `.env` file in the project root directory and add your OpenRouter API key:
+
+   ```sh
+   # Create .env file
+   touch .env
+   ```
+
+   Then add your API key to the `.env` file:
+
+   ```env
+   API_KEY=your_openrouter_api_key_here
+   ```
+
+   > [!NOTE]
+   > To get your OpenRouter API key:
+   > 1. Visit [OpenRouter](https://openrouter.ai/)
+   > 2. Sign up or log in to your account
+   > 3. Go to your dashboard and generate an API key
+   > 4. Copy the key and paste it in your `.env` file
+
+4. **Run the Application**:
 
 ```sh
 python main.py
