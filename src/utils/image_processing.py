@@ -1,6 +1,5 @@
 import base64
 from io import BytesIO
-from typing import cast
 
 import easyocr
 import numpy as np

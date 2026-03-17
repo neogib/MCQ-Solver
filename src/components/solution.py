@@ -98,7 +98,7 @@ class SolutionButton(ctk.CTkButton):
             content = prompt
 
         completion = client.chat.completions.create(
-            model="google/gemma-3-27b-it:free",
+            model="openrouter/hunter-alpha",
             messages=[{"role": "user", "content": content}],  # pyright: ignore[reportArgumentType]
             temperature=0.7,
             top_p=0.5,
