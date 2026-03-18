@@ -1,7 +1,7 @@
 [project]
 name = "closed-questions-ai"
 version = "0.1.0"
-description = "auto-AI solutions to closed questions "
+description = "auto-AI solutions to closed questions"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
