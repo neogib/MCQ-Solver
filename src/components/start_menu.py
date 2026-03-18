@@ -2,7 +2,7 @@ from collections.abc import Callable
 
 import customtkinter as ctk
 
-from ..settings import Colors, Fonts, Geometry
+from src.settings import Colors, Fonts, Geometry
 
 
 class StartMenu(ctk.CTkFrame):

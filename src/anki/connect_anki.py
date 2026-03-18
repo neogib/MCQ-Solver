@@ -6,8 +6,8 @@ from PIL.Image import Image
 from src.components.user_information import InfoType
 from src.utils.image_processing import encode_pil_image
 
-from .config import ADD_NOTE_REQUEST_BODY, HOST_PORT
-from .response_status import (
+from src.anki.config import ADD_NOTE_REQUEST_BODY, HOST_PORT
+from src.anki.response_status import (
     AddNoteResponse,
     DecksResponse,
     ResponseInfo,

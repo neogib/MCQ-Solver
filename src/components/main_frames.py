@@ -3,10 +3,10 @@ from PIL.Image import Image
 
 from src.utils.image_processing import get_text_from_img
 
-from .basic_widgets import RadioButton, Text, Title
-from .image import ImageImport
-from .solution import SolutionButton
-from .tabview.tabview_settings import Settings
+from src.components.basic_widgets import RadioButton, Text, Title
+from src.components.image import ImageImport
+from src.components.solution import SolutionButton
+from src.components.tabview.tabview_settings import Settings
 
 
 class MainContent(ctk.CTkFrame):

@@ -3,13 +3,13 @@ from typing import final
 import customtkinter as ctk
 from PIL.Image import Image
 
-from .components.main_frames import (
+from src.components.main_frames import (
     LeftMenu,
     MainContent,
 )
-from .components.start_menu import StartMenu
-from .settings import Geometry
-from .windows.help_window import HelpWindow
+from src.components.start_menu import StartMenu
+from src.settings import Geometry
+from src.windows.help_window import HelpWindow
 
 
 @final

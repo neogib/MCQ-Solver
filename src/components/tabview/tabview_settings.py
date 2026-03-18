@@ -16,9 +16,9 @@ from src.anki.response_status import ResponseStatus
 from src.components.basic_widgets import CommonLabel, OptionMenu
 from src.components.user_information import InfoMessage, InfoType
 
-from ...settings import Colors
-from .export_files import ExtendFile, Extension, NewFile
-from .tabview_utils import SettingsButtons
+from src.settings import Colors
+from src.components.tabview.export_files import ExtendFile, Extension, NewFile
+from src.components.tabview.tabview_utils import SettingsButtons
 
 
 class ExportOptions(Enum):

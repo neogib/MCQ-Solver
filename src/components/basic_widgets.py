@@ -1,6 +1,6 @@
 import customtkinter as ctk
 
-from ..settings import Colors, Fonts
+from src.settings import Colors, Fonts
 
 
 class Title(ctk.CTkLabel):

@@ -5,12 +5,12 @@ from PIL import Image, ImageGrab, ImageTk, UnidentifiedImageError
 
 from src.components.user_information import InfoMessage, InfoType
 
-from ..settings import Colors
-from .basic_widgets import CommonLabel
-from .tabview.tabview_settings import SettingsButtons
+from src.settings import Colors
+from src.components.basic_widgets import CommonLabel
+from src.components.tabview.tabview_settings import SettingsButtons
 
 if TYPE_CHECKING:
-    from ..app import App
+    from src.app import App
 
 
 class ImageImport(ctk.CTkFrame):

@@ -3,8 +3,8 @@ from typing import final
 
 import customtkinter as ctk
 
-from ..settings import AlertsColors, Fonts
-from .basic_widgets import CommonLabel
+from src.settings import AlertsColors, Fonts
+from src.components.basic_widgets import CommonLabel
 
 
 class InfoType(Enum):

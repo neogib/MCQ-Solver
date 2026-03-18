@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from src.app import App
 
 
-from ..settings import PROMPT_EXPLANATION, Colors, Fonts, Geometry
+from src.settings import PROMPT_EXPLANATION, Colors, Fonts, Geometry
 
 
 class SolutionButton(ctk.CTkButton):

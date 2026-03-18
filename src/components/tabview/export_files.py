@@ -6,9 +6,9 @@ from odf.opendocument import OpenDocumentText
 
 from src.components.user_information import InfoMessage, InfoType
 
-from ...settings import Colors
-from ..basic_widgets import CommonLabel
-from .tabview_utils import SettingsButtons, SettingsEntry
+from src.settings import Colors
+from src.components.basic_widgets import CommonLabel
+from src.components.tabview.tabview_utils import SettingsButtons, SettingsEntry
 
 
 class Extension(Enum):

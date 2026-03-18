@@ -1,8 +1,8 @@
 import customtkinter as ctk
 import emoji
 
-from ..components.basic_widgets import CommonLabel, Text
-from ..settings import HELP_TEXT, Fonts, Geometry
+from src.components.basic_widgets import CommonLabel, Text
+from src.settings import HELP_TEXT, Fonts, Geometry
 
 
 class HelpWindow(ctk.CTkToplevel):
