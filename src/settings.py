@@ -1,4 +1,8 @@
 # For windows geometry and elements radius
+from typing import ClassVar, final
+
+
+@final
 class Geometry:
     MAIN = (1200, 1000)
     HELP = (500, 500)
@@ -8,6 +12,7 @@ class Geometry:
 
 
 # Colors class for different elements in UI
+@final
 class Colors:
     TEXTBOX = "#333333"
     BORDER_TEXTBOX = "#B2B2B2"
@@ -22,13 +27,15 @@ class Colors:
     IMAGE_FRAME = "#555555"
 
 
+@final
 class AlertsColors:
-    SUCCESS = {"bg": "#d4edda", "text": "#2d693a"}
-    DANGER = {"bg": "#f8d7da", "text": "#82323a"}
-    INFO = {"bg": "#cce5ff", "text": "#225b99"}
+    SUCCESS: ClassVar[dict[str, str]] = {"bg": "#d4edda", "text": "#2d693a"}
+    DANGER: ClassVar[dict[str, str]] = {"bg": "#f8d7da", "text": "#82323a"}
+    INFO: ClassVar[dict[str, str]] = {"bg": "#cce5ff", "text": "#225b99"}
 
 
 # Fonts class for different elements in UI
+@final
 class Fonts:
     NORMAL = "Quicksand Medium"
     NORMAL_SIZE = 14
