@@ -3,9 +3,6 @@ from datetime import datetime
 import requests
 from PIL.Image import Image
 
-from src.components.user_information import InfoType
-from src.utils.image_processing import encode_pil_image
-
 from src.anki.config import ADD_NOTE_REQUEST_BODY, HOST_PORT
 from src.anki.response_status import (
     AddNoteResponse,
@@ -13,6 +10,8 @@ from src.anki.response_status import (
     ResponseInfo,
     ResponseStatus,
 )
+from src.components.user_information import InfoType
+from src.utils.image_processing import encode_pil_image
 
 
 class Anki:
@@ -22,7 +21,7 @@ class Anki:
     """
 
     def __init__(self):
-        self.host_port = HOST_PORT
+        self.host_port: str = HOST_PORT
 
     @staticmethod
     def validate_response(data: dict, success_msg: str) -> ResponseInfo:

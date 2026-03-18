@@ -28,3 +28,4 @@ reportMissingTypeStubs = false
 reportUnknownVariableType = false
 reportUnknownMemberType = false
 reportUnknownArgumentType = false
+reportImportCycles = "none" # using customtkinter causes import cycles, so we disable this check

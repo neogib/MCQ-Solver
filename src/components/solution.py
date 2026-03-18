@@ -11,8 +11,8 @@ from src.components.user_information import InfoMessage, InfoType
 from src.utils.image_processing import encode_pil_image
 
 if TYPE_CHECKING:
-    from src.components.main_frames import MainContent
     from src.app import App
+    from src.components.main_frames import MainContent
 
 
 from src.settings import PROMPT_EXPLANATION, Colors, Fonts, Geometry

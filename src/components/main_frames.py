@@ -1,18 +1,24 @@
+from collections.abc import Callable
+from typing import TYPE_CHECKING, final
+
 import customtkinter as ctk
 from PIL.Image import Image
-
-from src.utils.image_processing import get_text_from_img
 
 from src.components.basic_widgets import RadioButton, Text, Title
 from src.components.image import ImageImport
 from src.components.solution import SolutionButton
 from src.components.tabview.tabview_settings import Settings
+from src.utils.image_processing import get_text_from_img
+
+if TYPE_CHECKING:
+    from src.app import App
 
 
+@final
 class MainContent(ctk.CTkFrame):
-    def __init__(self, parent):
+    def __init__(self, parent: "App"):
         super().__init__(master=parent, fg_color="transparent")
-        self.main_window = parent
+        self.main_window: "App" = parent
 
         Title(self)
         self.image_import = ImageImport(
@@ -21,6 +27,10 @@ class MainContent(ctk.CTkFrame):
         )
 
         self.grid(row=0, column=2, columnspan=3, padx=25, pady=25, sticky="nsew")
+
+        # later used instance variables
+        self.question_editor: Text | None = None
+        self.frame_for_radiobuttons: ctk.CTkFrame | None = None
 
     def add_elements(self, image: Image):
         """
@@ -68,12 +78,20 @@ class MainContent(ctk.CTkFrame):
         self.frame_for_radiobuttons.place(relx=0, rely=0.87, relheight=0.05, relwidth=1)
 
     def remove_elements(self):
-        self.question_editor.place_forget()
-        self.frame_for_radiobuttons.place_forget()
+        if self.question_editor is not None:
+            self.question_editor.place_forget()
+        if self.frame_for_radiobuttons is not None:
+            self.frame_for_radiobuttons.place_forget()
 
 
+@final
 class LeftMenu(ctk.CTkFrame):
-    def __init__(self, parent, back_to_main_menu_func, help_func):
+    def __init__(
+        self,
+        parent: "App",
+        back_to_main_menu_func: Callable[[], None],
+        help_func: Callable[[], None],
+    ):
         super().__init__(master=parent, fg_color="transparent")
         self.settings = Settings(
             self, back_func=back_to_main_menu_func, help_func=help_func
@@ -83,10 +101,15 @@ class LeftMenu(ctk.CTkFrame):
 
         self.grid(row=0, column=0, columnspan=2, padx=25, pady=25, sticky="nsew")
 
+        # later used instance variable
+        self.paste_next: ctk.CTkButton | None = None
+
     def add_solution(self, solution: str):
         self.textbox.insert("end", solution)
 
-    def add_paste_next_question_button(self, paste_next_question_func):
+    def add_paste_next_question_button(
+        self, paste_next_question_func: Callable[[], None]
+    ):
         self.paste_next = self.settings.create_button(
             "Navigate", "Paste next question", paste_next_question_func
         )
@@ -100,9 +123,10 @@ class LeftMenu(ctk.CTkFrame):
             self.settings.delete("Export")
 
         # remove paste_next_question button
-        self.paste_next.destroy()
+        if self.paste_next is not None:
+            self.paste_next = self.paste_next.destroy()
 
-    def tab_exists(self, tab_name):
+    def tab_exists(self, tab_name: str):
         """Check if a tab exists in the tabview."""
         try:
             self.settings.index(tab_name)

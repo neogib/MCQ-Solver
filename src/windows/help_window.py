@@ -1,3 +1,5 @@
+from typing import final
+
 import customtkinter as ctk
 import emoji
 
@@ -5,8 +7,9 @@ from src.components.basic_widgets import CommonLabel, Text
 from src.settings import HELP_TEXT, Fonts, Geometry
 
 
+@final
 class HelpWindow(ctk.CTkToplevel):
-    def __init__(self, parent):
+    def __init__(self, parent: ctk.CTk):
         super().__init__(master=parent)
         width = Geometry.HELP[0]
         height = Geometry.HELP[1]
