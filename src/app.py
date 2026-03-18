@@ -38,6 +38,8 @@ class App(ctk.CTk):
             uniform="b",
         )
         self.help_window: None | HelpWindow = None
+        self.main_content: MainContent | None = None
+        self.left_menu: LeftMenu | None = None
 
         # start widgets
         self.start_menu = StartMenu(
@@ -71,8 +73,11 @@ class App(ctk.CTk):
     def back_to_main_menu(
         self,
     ):
+        assert self.main_content is not None
+        assert self.left_menu is not None
         self.main_content.grid_forget()
         self.left_menu.grid_forget()
+
         self.start_menu = StartMenu(
             self,
             self.exam_layout,
@@ -80,15 +85,20 @@ class App(ctk.CTk):
         )
 
     def paste_next_question_button(self):
+        assert self.left_menu is not None
         self.left_menu.add_paste_next_question_button(self.reset_elements)
 
     def export_settings_section(self, image: Image):
+        assert self.left_menu is not None
         self.left_menu.settings.add_section_for_export(image)
 
     def provide_solution(self, solution: str):
+        assert self.left_menu is not None
         self.left_menu.add_solution(solution)
 
     def reset_elements(self):
+        assert self.main_content is not None
+        assert self.left_menu is not None
         self.main_content.destroy()
         self.left_menu.reset()
 
