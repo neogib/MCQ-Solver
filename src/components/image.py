@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from tkinter import Event
+from tkinter import Event, Misc
 from typing import TYPE_CHECKING, cast, final
 
 import customtkinter as ctk
@@ -80,7 +80,7 @@ class ImageImport(ctk.CTkFrame):
 
     def paste_image(
         self,
-        _: Event | None = None,
+        _: "Event[Misc] | None" = None,
         path: str | None = None,
     ) -> None:
         if self.focus_get() == self:
@@ -119,7 +119,7 @@ class ImageImport(ctk.CTkFrame):
             self.main_content.add_elements(self.image)  # add edit box, answer button
             self.main_window.paste_next_question_button()
 
-    def resize_image(self, event: Event) -> None:
+    def resize_image(self, event: "Event[Misc]") -> None:
         assert self.image is not None
         assert self.image_output is not None
         image_width, image_height = calculate_new_size(
@@ -146,7 +146,7 @@ class ImageOutput(ctk.CTkCanvas):
     def __init__(
         self,
         parent: ImageImport,
-        resize_image_func: Callable[[Event], None],
+        resize_image_func: Callable[["Event[Misc]"], None],
     ) -> None:
         super().__init__(
             master=parent,
