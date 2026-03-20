@@ -1,7 +1,8 @@
 import datetime
+from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import cast
+from typing import TYPE_CHECKING, Callable, final
 
 import customtkinter as ctk
 from odf import teletype
@@ -14,11 +15,13 @@ from PIL.Image import Image
 from src.anki.connect_anki import Anki
 from src.anki.response_status import ResponseStatus
 from src.components.basic_widgets import CommonLabel, OptionMenu
-from src.components.user_information import InfoMessage, InfoType
 
-from src.settings import Colors
+if TYPE_CHECKING:
+    from src.components.main_frames import LeftMenu
 from src.components.tabview.export_files import ExtendFile, Extension, NewFile
 from src.components.tabview.tabview_utils import SettingsButtons
+from src.components.user_information import InfoMessage, InfoType
+from src.settings import Colors
 
 
 class ExportOptions(Enum):
@@ -27,8 +30,22 @@ class ExportOptions(Enum):
     ANKI = "Export to Anki deck"
 
 
+@dataclass
+class ExportState:
+    image: Image
+    frame: ctk.CTkFrame
+    option_menu: OptionMenu
+    anki_decks: OptionMenu | None = None
+
+
+@final
 class Settings(ctk.CTkTabview):
-    def __init__(self, parent, back_func, help_func):
+    def __init__(
+        self,
+        parent: "LeftMenu",
+        back_func: Callable[[], None],
+        help_func: Callable[[], None],
+    ):
         super().__init__(
             master=parent,
             fg_color=Colors.SETTINGS_BG,
@@ -39,8 +56,7 @@ class Settings(ctk.CTkTabview):
             segmented_button_unselected_hover_color=Colors.BUTTON_HOVER,
         )
         self.left_menu = parent
-        # help window not visible at creation
-        self.help_window = None
+        self._export: ExportState | None = None
 
         # tabs
         self.add("Navigate")
@@ -71,34 +87,43 @@ class Settings(ctk.CTkTabview):
 
         self.place(rely=0.75, relx=0, relheight=0.25, relwidth=1)
 
-    def create_button(self, tab: str, text: str, func):
+    def create_button(
+        self, tab: str, text: str, func: Callable[[], None]
+    ) -> SettingsButtons:
         return SettingsButtons(self.tab(tab), text, func)
 
     def add_section_for_export(self, image: Image):
-        # save image to later export it
-        self.image = image
-
         # create new tab to export answer to a markdown/odt file
         self.add("Export")
 
-        self.export_frame = ctk.CTkFrame(self.tab("Export"))
-        self.export_frame.place(
+        export_frame = ctk.CTkFrame(self.tab("Export"))
+        export_frame.place(
             relx=0.5, rely=0.5, relheight=0.7, relwidth=0.5, anchor="center"
         )
 
-        CommonLabel(self.export_frame, "Select export method:").pack(
+        CommonLabel(export_frame, "Select export method:").pack(
             pady=5, expand=True
         )
         export_values = [option.value for option in ExportOptions]
-        self.option_menu = OptionMenu(
-            self.export_frame, self.export_option_string, export_values
+        option_menu = OptionMenu(
+            export_frame, self.export_option_string, export_values
         )
 
         SettingsButtons(
-            self.export_frame,
+            export_frame,
             "Submit choice",
             self.choose_export_option,
         ).pack(expand=True)
+        self._export = ExportState(
+            image=image,
+            frame=export_frame,
+            option_menu=option_menu,
+        )
+
+    def _require_export(self) -> ExportState:
+        if self._export is None:
+            raise RuntimeError("Export section not initialized")
+        return self._export
 
     def choose_export_option(self):
         self.remove_options_layout()
@@ -110,39 +135,48 @@ class Settings(ctk.CTkTabview):
             self.anki_layout()
 
     def remove_options_layout(self):
-        cast(SettingsButtons, self.option_menu).pack_forget()
-        self.remove_children_from_export_frame()
+        export = self._require_export()
+        export.option_menu.pack_forget()
+        self.remove_children_from_export_frame(export.frame)
 
-    def remove_children_from_export_frame(self):
-        for child in self.export_frame.winfo_children():
+    def remove_children_from_export_frame(self, export_frame: ctk.CTkFrame):
+        for child in export_frame.winfo_children():
             child.destroy()
-        # cast(SettingsButtons, self.export_frame).place_forget()
 
     def anki_layout(self):
-        self.anki_connection = Anki()
-        decks = self.anki_connection.get_decks()
+        export = self._require_export()
+        anki_connection = Anki()
+        decks = anki_connection.get_decks()
         InfoMessage(
-            self.left_menu.master,
+            self.left_menu,
             decks.info.message,
             decks.info.info_type,
         )
         if decks.info.status != ResponseStatus.SUCCESS:
             # restart export
-            self.remove_children_from_export_frame()
+            image = export.image
+            self.remove_children_from_export_frame(export.frame)
             self.delete("Export")
-            self.add_section_for_export(self.image)
+            self._export = None
+            self.add_section_for_export(image)
             return
 
-        CommonLabel(self.export_frame, "Select deck:").pack(pady=5, expand=True)
+        CommonLabel(export.frame, "Select deck:").pack(pady=5, expand=True)
 
-        self.anki_decks = OptionMenu(
-            self.export_frame, self.anki_deck_string, decks.decks
-        )
+        if not decks.decks:
+            InfoMessage(
+                self.left_menu,
+                "No decks found in Anki. Please create a deck before exporting.",
+                InfoType.INFO,
+            )
+            return
+        # create option menu with decks from anki
+        export.anki_decks = OptionMenu(export.frame, self.anki_deck_string, decks.decks)
 
         SettingsButtons(
-            self.export_frame,
+            export.frame,
             "Add new note",
-            self.add_new_anki_note,
+            lambda: self.add_new_anki_note(anki_connection),
         ).pack(expand=True)
 
     def new_file_layout(self):
@@ -153,7 +187,7 @@ class Settings(ctk.CTkTabview):
             self.dir_path_string,
             self.file_name_string,
             self.export_solution,
-            self.left_menu.master,
+            self.left_menu,
         )
 
     def extend_file_layout(self):
@@ -161,26 +195,29 @@ class Settings(ctk.CTkTabview):
             self.tab("Export"),
             self.file_path_string,
             self.export_solution,
-            self.left_menu.master,
+            self.left_menu,
         )
 
-    def add_new_anki_note(self):
+    def add_new_anki_note(self, anki_connection: Anki):
+        export = self._require_export()
         answer_text = self.left_menu.textbox.get("0.0", "end")
-        response = self.anki_connection.add_note(
-            self.anki_deck_string.get(), self.image, answer_text
+        response = anki_connection.add_note(
+            self.anki_deck_string.get(), export.image, answer_text
         )
 
         # display message for the user if something went wrong or request was successful
         InfoMessage(
-            self.left_menu.master,
+            self.left_menu,
             f"{response.info.message}\nNote ID: {response.note_id}",
             response.info.info_type,
         )
         if response.info.status == ResponseStatus.SUCCESS:
-            self.remove_children_from_export_frame()
+            self.remove_children_from_export_frame(export.frame)
             self.delete("Export")
+            self._export = None
 
     def export_solution(self, full_path: str, ext: Extension):
+        export = self._require_export()
         # have to first save img in chosen dir to use it in libreoffice or markdown
         path = Path(full_path)
         path.parent.mkdir(
@@ -190,30 +227,31 @@ class Settings(ctk.CTkTabview):
         # Generate unique filename for the image in the same directory
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         full_image_path = path.parent / f"image_{timestamp}.png"
-        self.image.save(full_image_path)
+        export.image.save(full_image_path)
         text_to_write = self.left_menu.textbox.get("0.0", "end")
 
         try:
             match ext:
                 case Extension.ODT.value:
-                    self.odt_export(path, text_to_write, full_image_path)
+                    self.odt_export(path, text_to_write, full_image_path, export.image)
                 case Extension.MD.value:
                     self.md_export(path, text_to_write, full_image_path)
                 case _:
                     raise Exception
         except Exception:
             InfoMessage(
-                self.left_menu.master,
+                self.left_menu,
                 "Something went wrong while exporting",
                 InfoType.DANGER,
             )
             return
 
         # message of success
-        InfoMessage(self.left_menu.master, "Successfully saved file", InfoType.SUCCESS)
+        InfoMessage(self.left_menu, "Successfully saved file", InfoType.SUCCESS)
 
-        self.remove_children_from_export_frame()
+        self.remove_children_from_export_frame(export.frame)
         self.delete("Export")
+        self._export = None
 
     def md_export(self, path: Path, text_to_write: str, image_path: Path):
         # Prepare the markdown content to append
@@ -224,14 +262,16 @@ class Settings(ctk.CTkTabview):
         with path.open("a", encoding="utf-8") as md_file:
             md_file.write(markdown_content)
 
-    def odt_export(self, path: Path, text_to_write: str, image_path: Path):
+    def odt_export(
+        self, path: Path, text_to_write: str, image_path: Path, image: Image
+    ):
         try:
             textdoc = load(path)
             p_img = P()
             textdoc.text.addElement(p_img)  # pyright: ignore[reportAttributeAccessIssue]
             photoframe = Frame(
-                width=f"{self.image.size[0] / 2}pt",
-                height=f"{self.image.size[1] / 2}pt",
+                width=f"{image.size[0] / 2}pt",
+                height=f"{image.size[1] / 2}pt",
                 anchortype="paragraph",
             )
             href = textdoc.addPicture(image_path)
