@@ -1,10 +1,14 @@
+from collections.abc import Callable
+
 import customtkinter as ctk
 
 from src.settings import Colors, Fonts
 
 
 class SettingsButtons(ctk.CTkButton):
-    def __init__(self, parent, text, func=None):
+    def __init__(
+        self, parent: ctk.CTkFrame, text: str, func: Callable[[], None] | None = None
+    ):
         super().__init__(
             master=parent,
             text=text,
@@ -18,7 +22,7 @@ class SettingsButtons(ctk.CTkButton):
 
 
 class SettingsEntry(ctk.CTkEntry):
-    def __init__(self, parent, textvariable):
+    def __init__(self, parent: ctk.CTkFrame, textvariable: ctk.Variable):
         super().__init__(
             master=parent,
             textvariable=textvariable,

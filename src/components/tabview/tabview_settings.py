@@ -101,13 +101,9 @@ class Settings(ctk.CTkTabview):
             relx=0.5, rely=0.5, relheight=0.7, relwidth=0.5, anchor="center"
         )
 
-        CommonLabel(export_frame, "Select export method:").pack(
-            pady=5, expand=True
-        )
+        CommonLabel(export_frame, "Select export method:").pack(pady=5, expand=True)
         export_values = [option.value for option in ExportOptions]
-        option_menu = OptionMenu(
-            export_frame, self.export_option_string, export_values
-        )
+        option_menu = OptionMenu(export_frame, self.export_option_string, export_values)
 
         SettingsButtons(
             export_frame,
@@ -230,21 +226,11 @@ class Settings(ctk.CTkTabview):
         export.image.save(full_image_path)
         text_to_write = self.left_menu.textbox.get("0.0", "end")
 
-        try:
-            match ext:
-                case Extension.ODT.value:
-                    self.odt_export(path, text_to_write, full_image_path, export.image)
-                case Extension.MD.value:
-                    self.md_export(path, text_to_write, full_image_path)
-                case _:
-                    raise Exception
-        except Exception:
-            InfoMessage(
-                self.left_menu,
-                "Something went wrong while exporting",
-                InfoType.DANGER,
-            )
-            return
+        match ext:
+            case Extension.ODT:
+                self.odt_export(path, text_to_write, full_image_path, export.image)
+            case Extension.MD:
+                self.md_export(path, text_to_write, full_image_path)
 
         # message of success
         InfoMessage(self.left_menu, "Successfully saved file", InfoType.SUCCESS)
@@ -265,28 +251,25 @@ class Settings(ctk.CTkTabview):
     def odt_export(
         self, path: Path, text_to_write: str, image_path: Path, image: Image
     ):
-        try:
-            textdoc = load(path)
-            p_img = P()
-            textdoc.text.addElement(p_img)  # pyright: ignore[reportAttributeAccessIssue]
-            photoframe = Frame(
-                width=f"{image.size[0] / 2}pt",
-                height=f"{image.size[1] / 2}pt",
-                anchortype="paragraph",
-            )
-            href = textdoc.addPicture(image_path)
-            photoframe.addElement(odfImage(href=href))
-            p_img.addElement(photoframe)
-            # adding text
-            paragraph = P()
-            teletype.addTextToElement(
-                paragraph,
-                text_to_write,
-            )
-            textdoc.text.addElement(paragraph)  # pyright: ignore[reportAttributeAccessIssue]
-            textdoc.save(path)
+        textdoc = load(path)
+        p_img = P()
+        textdoc.text.addElement(p_img)  # pyright: ignore[reportAttributeAccessIssue]
+        photoframe = Frame(
+            width=f"{image.size[0] / 2}pt",
+            height=f"{image.size[1] / 2}pt",
+            anchortype="paragraph",
+        )
+        href = textdoc.addPicture(image_path)
+        photoframe.addElement(odfImage(href=href))
+        p_img.addElement(photoframe)
+        # adding text
+        paragraph = P()
+        teletype.addTextToElement(
+            paragraph,
+            text_to_write,
+        )
+        textdoc.text.addElement(paragraph)  # pyright: ignore[reportAttributeAccessIssue]
+        textdoc.save(path)
 
-            # remove img
-            image_path.unlink(missing_ok=True)
-        except Exception as err:
-            raise err
+        # remove img
+        image_path.unlink(missing_ok=True)

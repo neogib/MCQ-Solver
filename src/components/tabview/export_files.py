@@ -1,14 +1,15 @@
+from collections.abc import Callable
 from enum import Enum
 from os.path import exists, isfile
+from typing import final
 
 import customtkinter as ctk
 from odf.opendocument import OpenDocumentText
 
-from src.components.user_information import InfoMessage, InfoType
-
-from src.settings import Colors
 from src.components.basic_widgets import CommonLabel
 from src.components.tabview.tabview_utils import SettingsButtons, SettingsEntry
+from src.components.user_information import InfoMessage, InfoType
+from src.settings import Colors
 
 
 class Extension(Enum):
@@ -16,8 +17,24 @@ class Extension(Enum):
     MD = "md"
 
 
+def parse_extension(value: str) -> Extension | None:
+    extension = value.split(".")[-1].lower()
+    if extension == Extension.ODT.value:
+        return Extension.ODT
+    if extension == Extension.MD.value:
+        return Extension.MD
+    return None
+
+
+@final
 class ExtendFile(ctk.CTkFrame):
-    def __init__(self, parent, path_string, export_func, main_window):
+    def __init__(
+        self,
+        parent: ctk.CTkFrame,
+        path_string: ctk.StringVar,
+        export_func: Callable[[str, Extension], None],
+        main_window: ctk.CTkFrame,
+    ):
         super().__init__(master=parent, fg_color=Colors.SETTINGS_SEGMENTED_BG)
         self.export_func = export_func
         self.path_string = path_string
@@ -47,12 +64,27 @@ class ExtendFile(ctk.CTkFrame):
                 InfoType.DANGER,
             )
             return
-        extension = self.path_string.get().split(".")[-1]
+        extension = parse_extension(self.path_string.get())
+        if extension is None:
+            InfoMessage(
+                self.main_window,
+                "Invalid file extension",
+                InfoType.DANGER,
+            )
+            return
         self.export_func(self.path_string.get(), extension)
 
 
+@final
 class NewFile(ctk.CTkFrame):
-    def __init__(self, parent, dir_path, file_name, export_func, main_window):
+    def __init__(
+        self,
+        parent: ctk.CTkFrame,
+        dir_path: ctk.StringVar,
+        file_name: ctk.StringVar,
+        export_func: Callable[[str, Extension], None],
+        main_window: ctk.CTkFrame,
+    ) -> None:
         super().__init__(master=parent, fg_color=Colors.SETTINGS_SEGMENTED_BG)
         self.dir_path = dir_path
         self.file_name = file_name
@@ -80,20 +112,17 @@ class NewFile(ctk.CTkFrame):
             relwidth=1,
         )
 
-    def create_new_file(self):
+    def create_new_file(self) -> None:
         full_path = f"{self.dir_path.get()}/{self.file_name.get()}"
-        extension = self.file_name.get().split(".")[-1]
-        if extension not in [
-            Extension.ODT.value,
-            Extension.MD.value,
-        ]:
+        extension = parse_extension(self.file_name.get())
+        if extension is None:
             InfoMessage(
                 self.main_window,
                 "Invalid file extension",
                 InfoType.DANGER,
             )
             return
-        elif exists(full_path):
+        if exists(full_path):
             InfoMessage(
                 self.main_window,
                 "File already exists",
@@ -101,14 +130,15 @@ class NewFile(ctk.CTkFrame):
             )
             return
 
-        if extension == Extension.ODT.value:
+        if extension is Extension.ODT:
             textdoc = OpenDocumentText()
             textdoc.save(full_path)  # save file to later extend it
         self.export_func(full_path, extension)
 
 
+@final
 class NewFilePath(ctk.CTkFrame):
-    def __init__(self, parent, path_string):
+    def __init__(self, parent: ctk.CTkFrame, path_string: ctk.StringVar) -> None:
         super().__init__(master=parent, fg_color=Colors.SETTINGS_SEGMENTED_BG)
         self.path_string = path_string
         SettingsButtons(self, "Open directory search", self.open_dir_dialog).pack(
@@ -118,7 +148,7 @@ class NewFilePath(ctk.CTkFrame):
 
         self.pack(side="left", expand=True, fill="both", padx=10, pady=5)
 
-    def open_dir_dialog(self):
+    def open_dir_dialog(self) -> None:
         path = ctk.filedialog.askdirectory(
             title="Choose directory to create file",
             initialdir="/home",
@@ -126,8 +156,11 @@ class NewFilePath(ctk.CTkFrame):
         self.path_string.set(path)
 
 
+@final
 class FileName(ctk.CTkFrame):
-    def __init__(self, parent, file_name_string):
+    def __init__(
+        self, parent: ctk.CTkFrame, file_name_string: ctk.StringVar
+    ) -> None:
         super().__init__(master=parent, fg_color=Colors.SETTINGS_SEGMENTED_BG)
         self.file_name = file_name_string
         CommonLabel(self, "Enter new file name:").pack(pady=5, expand=True)
