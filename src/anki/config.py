@@ -1,5 +1,7 @@
+from src.anki.payloads import AddNoteRequestPayload
+
 HOST_PORT = "http://127.0.0.1:8765"
-ADD_NOTE_REQUEST_BODY = {
+ADD_NOTE_REQUEST_BODY: AddNoteRequestPayload = {
     "action": "addNote",
     "version": 6,
     "params": {
