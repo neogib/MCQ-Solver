@@ -4,7 +4,7 @@ from src.settings import Colors, Fonts
 
 
 class Title(ctk.CTkLabel):
-    def __init__(self, parent):
+    def __init__(self, parent: ctk.CTkFrame):
         super().__init__(
             master=parent,
             text="IT exam auto solutions",
@@ -20,7 +20,7 @@ class Title(ctk.CTkLabel):
 
 
 class Text(ctk.CTkTextbox):
-    def __init__(self, parent):
+    def __init__(self, parent: ctk.CTkFrame | ctk.CTkToplevel):
         super().__init__(
             master=parent,
             wrap="word",
@@ -36,7 +36,7 @@ class Text(ctk.CTkTextbox):
 
 
 class CommonLabel(ctk.CTkLabel):
-    def __init__(self, parent, text):
+    def __init__(self, parent: ctk.CTkFrame | ctk.CTkToplevel, text: str):
         super().__init__(
             master=parent,
             text=text,
@@ -61,11 +61,13 @@ class RadioButton(ctk.CTkRadioButton):
             fg_color=Colors.BUTTON,
             hover_color=Colors.BUTTON_HOVER,
         )
-        self.variable = variable
+        self.variable: ctk.StringVar = variable
 
 
 class OptionMenu(ctk.CTkOptionMenu):
-    def __init__(self, parent, variable, values):
+    def __init__(
+        self, parent: ctk.CTkFrame, variable: ctk.StringVar, values: list[str]
+    ):
         super().__init__(
             master=parent,
             variable=variable,

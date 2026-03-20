@@ -23,6 +23,14 @@ dev = [
 ]
 
 [tool.basedpyright]
+exclude = [
+    "**/__pycache__/**",
+    "**/*.pyc",
+    "venv/**",
+    ".venv/**",
+    "alembic/**",
+    "build/**",
+]
 reportUnusedCallResult = false
 reportMissingTypeStubs = false
 reportUnknownVariableType = false

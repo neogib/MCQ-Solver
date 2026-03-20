@@ -1,10 +1,12 @@
 from enum import Enum
-from typing import final
+from typing import TYPE_CHECKING, final
 
 import customtkinter as ctk
 
-from src.settings import AlertsColors, Fonts
+if TYPE_CHECKING:
+    from src.app import App
 from src.components.basic_widgets import CommonLabel
+from src.settings import AlertsColors, Fonts
 
 
 class InfoType(Enum):
@@ -17,7 +19,7 @@ class InfoType(Enum):
 class InfoMessage(ctk.CTkFrame):
     def __init__(
         self,
-        parent: ctk.CTkFrame,
+        parent: "ctk.CTkFrame | App",
         message: str,
         info_type: InfoType,
         auto_destroy_after: int = 5000,

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, cast, final
 
 import customtkinter as ctk
 from dotenv import dotenv_values
@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 from src.settings import PROMPT_EXPLANATION, Colors, Fonts, Geometry
 
 
+@final
 class SolutionButton(ctk.CTkButton):
     def __init__(
         self,
