@@ -42,7 +42,19 @@ def get_text_from_img(image: Image) -> str:
     # Process with EasyOCR
     results = reader.readtext(img_array)
 
-    # Extract just the text from results and join them with spaces
-    text = "\n".join([result[1] for result in results])
+    # EasyOCR stubs are looser than runtime output; normalize to text explicitly.
+    lines: list[str] = []
+    for result in results:
+        text_part = _extract_easyocr_text(result)
+        if text_part:
+            lines.append(text_part)
 
-    return text
+    return "\n".join(lines)
+
+
+def _extract_easyocr_text(result: object) -> str:
+    if isinstance(result, (list, tuple)) and len(result) > 1:
+        text_value = result[1]
+        return text_value if isinstance(text_value, str) else str(text_value)
+
+    return ""
